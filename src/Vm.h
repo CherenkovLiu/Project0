@@ -1,9 +1,50 @@
 #ifndef __VM_H__
 #define __VM_H__
 
-#include "CommandSet.h"
 #include "Exception.h"
 #include "Types.h"
+
+typedef enum {
+    // [> Arithmetic Operations <]
+
+    // Basic operations
+    OP_ADD,
+    OP_SUB,
+    OP_MUL,
+    OP_DIV,
+
+    OP_AND,
+    OP_OR,
+    OP_NOR,
+    OP_NOT,
+
+    OP_SLEFT,
+    OP_SRIGHT,
+
+    // Logic operations
+    OP_LAND,
+    OP_LOR,
+    OP_LNOT,
+
+    // [> Control Flow <]
+    OP_JMP,
+
+    OP_JT,
+    OP_JF,
+
+    OP_JEQ,
+    OP_JNE,
+
+    OP_JBT,
+    OP_JLT,
+    OP_JBE,
+    OP_JLE,
+
+    // [> Stack Operation <]
+    OP_PUSH,
+    OP_POP,
+    OP_TOP
+} Instructions;
 
 typedef struct {
     PObject stack[1000];
@@ -172,5 +213,69 @@ void JumpLesserEqual(Stack* stack, Int16 value, Bool relateQ) {
     if (GetDecimal(ob2) >= GetDecimal(ob1))
         Jump(stack, value, relateQ);
 }
+
+#pragma region
+// This is the decode section for the virtual machine
+// a Int16 opcode is for the machine
+
+void Execute(Stack* stack, Int16 inst) {
+    Int16 opcode = inst >> 11;
+    Int16 tag = (inst >> 9) & 0x3;
+    PObject Instantobj;
+    if (tag != 0) {
+        Instantobj.tag = tag;
+        switch (tag) {
+            case 1:
+                Instantobj.v.boolean = inst & 0x1FF;
+                break;
+            case 2:
+                Instantobj.v.interger = inst & 0x1FF;
+                break;
+            case 3:
+                Instantobj.v.decimal = inst & 0x1FF;
+                break;
+        }
+    }
+    if (0 <= opcode && opcode <= 12) {
+        Arith(stack, (Instructions)opcode, tag == 0 ? 0 : &Instantobj);
+    } else {
+        switch (opcode) {
+            case 13:
+                Jump(stack, inst & 0x3FF, (inst >> 10) & 0x1);
+                break;
+            case 14:
+                JumpTrue(stack, inst & 0x3FF, (inst >> 10) & 0x1);
+                break;
+            case 15:
+                JumpFalse(stack, inst & 0x3FF, (inst >> 10) & 0x1);
+                break;
+            case 16:
+                JumpEqual(stack, inst & 0x3FF, (inst >> 10) & 0x1);
+                break;
+            case 17:
+                JumpNotEqual(stack, inst & 0x3FF, (inst >> 10) & 0x1);
+                break;
+            case 18:
+                JumpBigger(stack, inst & 0x3FF, (inst >> 10) & 0x1);
+                break;
+            case 19:
+                JumpLesser(stack, inst & 0x3FF, (inst >> 10) & 0x1);
+                break;
+            case 20:
+                JumpBiggerEqual(stack, inst & 0x3FF, (inst >> 10) & 0x1);
+                break;
+            case 21:
+                JumpLesserEqual(stack, inst & 0x3FF, (inst >> 10) & 0x1);
+                break;
+            case 22:
+                PushStack(stack, Instantobj);
+                break;
+            case 23:
+                PopStack(stack);
+        }
+    }
+}
+
+#pragma endregion
 
 #endif
