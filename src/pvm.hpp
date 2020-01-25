@@ -38,6 +38,7 @@ bool operator==(p_object p1, p_object p2) {
             case 3:
                 return (*p1.value.p_string) == (*p2.value.p_string);
             default:
+                break;
         }
     }
     return false;
@@ -162,6 +163,7 @@ private:
         std::vector<p_object>::iterator it = opnd.begin();
         for (; it != opnd.end(); ++it)
             result += "     " + p_value_tostring((*it).value, (*it).tag) + " <= tag : " + std::to_string((*it).tag) + "\n";
+        result.pop_back();
         return result;
     }
 

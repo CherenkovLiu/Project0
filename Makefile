@@ -1,15 +1,21 @@
-target = main
+target = test
 
-objs = obj/main.o
+objs = obj/test.o
 
-obj/%.o: src/%.c
+obj/%.o: src/%.cpp
 	mkdir -p $(@D)
-	gcc -o $@ -c $<
+	g++ -o $@ -c $<
 
 main: $(objs)
-	gcc -o $(target) $(objs)
+	g++ -o $(target) $(objs)
 
-run: $(target)
+run: $(target).exe
+	./$(target)
+
+auto:
+	make
+	make clean
+	clear
 	./$(target)
 
 .PHONY: clean
