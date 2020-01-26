@@ -146,7 +146,6 @@ enum instruction {
     OP_STRLEN,  // get a.length
     OP_CONCAT,  // concat a and b
     OP_STRCMP   // compare a and b, push result c, a number
-
 };
 
 #include <vector>
@@ -332,9 +331,20 @@ public:
      */
     string get_state() {
         string result = "Stack pointer : " + std::to_string(sp) + "\nInstruction pointer : " + std::to_string(ip) + "\n[> Bottom <]\n" + stack_to_string();
-        result += "\n[> Top <]\n";
+        result += "\n[> Top <]\n\n";
         return result;
     }
-};
 
+    void push_stack(p_object obj) {
+        push(obj);
+    }
+
+    void pop_stack() {
+        pop();
+    }
+
+    void arith_operation(instruction ins) {
+        arith(ins);
+    }
+};
 #endif
