@@ -2,7 +2,7 @@ target = test
 
 objs = obj/test.o
 
-obj/%.o: src/%.cpp
+obj/%.o: pvm/%.cpp
 	mkdir -p $(@D)
 	g++ -o $@ -c $<
 
